@@ -26,16 +26,21 @@ export async function createInvoice(formData: FormData) {
     status: formData.get('status'),
   });
 
-  
+
   const amountInCents = amount * 100;
   // const date = new Date().toString().split('T')[0];
   const date = new Date().toString().split('GMT')[0].trim();
-  
 
-  await sql`
-  INSERT INTO invoices (customer_id, amount, status, date)
-  VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `;
+
+  try {
+
+    await sql`
+    INSERT INTO invoices (customer_id, amount, status, date)
+    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
+  } catch (error) {
+    return { message: 'Database Error: "Create Invoice" action failed.' }
+  }
 
   //On DB updated, the /dashboard/invoices path will be revalidated,
   //and fresh data will be fetched from the server.
@@ -50,24 +55,39 @@ export async function updateInvoice(id: string, formData: FormData) {
     amount: formData.get('amount'),
     status: formData.get('status'),
   });
- 
+
   const amountInCents = amount * 100;
 
-  
-  console.log(`**************************************\nDATE TO UPDATE:\n${customerId}, ${amountInCents}, ${status}`);
- 
-  await sql`
+
+  try {
+
+    await sql`
     UPDATE invoices
     SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
     WHERE id = ${id}
-  `;
- 
+    `;
+  } catch (error) {
+    return { message: 'Database Error: "Update Invoice" action failed.' }
+  }
+
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
 
 
 export async function deleteInvoice(id: string) {
-  await sql`DELETE FROM invoices WHERE id = ${id}`;
-  revalidatePath('/dashboard/invoices');
+  
+  //DELETE this dmi error throw
+  // throw new Error('Failed to Delete Invoice');
+  //******************************/
+
+  try {
+
+    await sql`DELETE FROM invoices WHERE id = ${id}`;
+    revalidatePath('/dashboard/invoices');
+    return { message: 'Invoice  Deleted.' }
+
+  } catch (error) {
+    return { message: 'Database Error: "Delete Invoice" action failed.' }
+  }
 }
