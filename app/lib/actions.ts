@@ -78,7 +78,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 export async function deleteInvoice(id: string) {
   
   //DELETE this dmi error throw
-  // throw new Error('Failed to Delete Invoice');
+  throw new Error('Failed to Delete Invoice');
   //******************************/
 
   try {
