@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation'; 
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { cookies } from 'next/headers';
 
 
 export type TState = {
@@ -132,6 +133,7 @@ export async function authenticate(
   formData: FormData,
 ) {
   try {
+    await cookies();
     await signIn('credentials', formData);
   } catch (error) {
     if (error instanceof AuthError) {
